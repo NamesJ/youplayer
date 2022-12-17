@@ -189,5 +189,15 @@ class TelegramBot:
             f'Sorry, I don\'t recognize {update.message.text}')
 
     def unknown(self, update: Update, context: CallbackContext):
-        # Check if valid YouTube URL
-        update.message.reply_text('I don\'t know what that\'s about')
+        urls = update.message.text.split(' ')
+        added = 0
+        for url in urls:
+            if not valid_youtube_url(url):
+                continue
+            self.on_yt(url)
+            added += 1
+        if not added:
+            update.message.reply_text('I don\'t know what that\'s about')
+            return
+        update.message.reply_text(f'Added {added} urls')
+
