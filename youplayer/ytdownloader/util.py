@@ -1,16 +1,7 @@
 import os
 
 import yt_dlp
-import validators
 from filename_sanitizer import sanitize_path_fragment
-
-
-def valid_url(url):
-    if not validators.url(url):
-        return False
-    if not ('youtu.be' in url or 'youtube' in url):
-        return False
-    return True
 
 
 def get_filename(url: str, codec: str = 'wav'):

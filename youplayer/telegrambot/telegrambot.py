@@ -10,6 +10,7 @@ from telegram.ext.callbackcontext import CallbackContext
 from telegram.ext.commandhandler import CommandHandler
 from telegram.ext.messagehandler import MessageHandler
 from telegram.ext.filters import Filters
+from ..util import valid_youtube_url
 
 load_dotenv()
 
@@ -178,6 +179,8 @@ class TelegramBot:
             update.message.reply_text('No on_yt() callback set!')
             return
         for url in urls:
+            if not valid_youtube_url(url):
+                continue
             self.on_yt(url)
         update.message.reply_text(f'Added!')
 
