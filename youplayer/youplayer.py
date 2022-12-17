@@ -3,7 +3,7 @@ import tkinter as tk
 import os
 from .musicplayer import BaseMusicPlayerApp
 from .vlcplayer import VLCPlayer
-from .ytdownloader import YTDownloaderApp, valid_url
+from .ytdownloader import YTDownloaderApp
 from .telegrambot import TelegramBot
 
 

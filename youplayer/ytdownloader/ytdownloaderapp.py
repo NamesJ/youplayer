@@ -6,7 +6,8 @@ from tkinter import filedialog, messagebox, ttk
 import tkinter.font as tkfont
 from tkinter.constants import *
 import os
-from .util import download_audio, valid_url, get_filename, extract_audio
+from .util import download_audio, get_filename, extract_audio
+from ..util import valid_youtube_url
 
 DEFAULT_NT_PATH = 'C:/Users/sande/Music/ytdownloads'
 
@@ -143,7 +144,7 @@ class YTDownloaderApp(tk.Tk):
         if not os.path.exists(path):
             messagebox.showerror('Path Error', 'Save path is invalid!')
             return
-        if not valid_url(url):
+        if not valid_youtube_url(url):
             messagebox.showerror('URL Error', 'YouTube URL is invalid!')
             return
 
