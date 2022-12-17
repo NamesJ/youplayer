@@ -1,5 +1,5 @@
 # YouPlayer
-A collaborative YouTube music player
+A collaborative YouTube music player via Telegram bot, VLC remote-control and yt-dlp
 
 Automatically download and extract audio from YouTube videos shared via Telegram bot and play with VLC media player.
 
