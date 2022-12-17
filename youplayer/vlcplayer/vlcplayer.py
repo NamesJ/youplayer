@@ -1,5 +1,4 @@
 from threading import Thread
-import vlc
 import socket
 import os
 import subprocess
