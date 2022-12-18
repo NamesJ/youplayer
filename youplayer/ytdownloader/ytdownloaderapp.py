@@ -41,6 +41,30 @@ class DownloadInfo(ttk.Frame):
         InfoEntry(textvariable=self.status).pack(side=RIGHT)
 
 
+class ScrollableLabelFrame(ttk.LabelFrame):
+    def __init__(self, parent, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        canvas = tk.Canvas(self)
+        scrollbar = ttk.Scrollbar(self, orient='vertical', command=canvas.yview)
+        self.scrollable_frame = ttk.Frame(canvas)
+        self.window = canvas.create_window((0, 0), window=self.scrollable_frame)
+        # Configure event triggered anytime the window is changed or mouse
+        # clicked
+        def configure(event):
+            canvas.configure(scrollregion=canvas.bbox('all'))
+            canvas.itemconfig(self.window,
+                              width=canvas.winfo_width())
+        self.scrollable_frame.bind(
+            '<Configure>',
+            configure
+        )
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.pack(expand=True, fill=BOTH, side=LEFT)
+        scrollbar.pack(expand=False, fill=Y, side=RIGHT)
+        # Go ahead and manually trigger first configure
+
+
+
 class LabelWidget(ttk.Label):
     def __init__(self, *args, font: tuple = ('Times New Roman', 14, 'bold'),
                  **kwargs):
@@ -65,7 +89,7 @@ class YTDownloaderApp(tk.Tk):
         y = 80  # top is 80 from screen top
         self.geometry(f'{width}x{height}+{x}+{y}')
         self.title(title)
-        self.resizable(False, False)
+        self.resizable(True, True)
         # Save path section
         path_frame = ttk.Labelframe(self, labelwidget=LabelWidget(
             self, text='Save path'))
@@ -86,20 +110,22 @@ class YTDownloaderApp(tk.Tk):
         if not os.path.isdir(self.save_path.get()):
             self.download_btn['state'] = DISABLED
         self.download_btn.pack(side=RIGHT, fill=Y)
+
         # Section to show URL and status of downloads
-        self.info_frame = ttk.Labelframe(self, labelwidget=LabelWidget(
-            self, text='Downloads'))
+        info_frame_label = LabelWidget(self, text='Downloads')
+        self.info_frame = ScrollableLabelFrame(
+            self,
+            labelwidget=info_frame_label)
         self.info_frame.pack(expand=True, fill=BOTH, side=BOTTOM, padx=2,
                              pady=4)
-        # Add headers to status frame
-        DownloadInfo(self.info_frame, url='URL', filename='File Name',
-                     status='Status', font=('Times New Roman', 12, 'bold'),
-                     relief=FLAT)\
-            .pack(expand=False, fill=X, side=TOP)
+        self.scrollable_frame = self.info_frame.scrollable_frame
+        # Add headers to info frame
+        DownloadInfo(self.scrollable_frame, url='URL',
+                     filename='File Name', status='Status',
+                     font=('Times New Roman', 12, 'bold'), relief=FLAT)\
+            .pack(expand=True, fill=X, side=TOP)
         # last_dl_info keeps track of last (top-most) DownloadInfo so that
         # next one can be packed before it to have most recent at top
-        self.last_dl_info = None
-
         # One DownloadInfo frame will be added to info_frame for each download
 
     def set_path(self):
@@ -116,10 +142,11 @@ class YTDownloaderApp(tk.Tk):
         :param url:
         :return:
         """
-        info_frame = DownloadInfo(self.info_frame, url=url)
-        info_frame.pack(before=self.last_dl_info, expand=False, fill=X,
+        children = self.scrollable_frame.winfo_children()
+        top_info_frame = None if len(children) == 1 else children[-1]
+        info_frame = DownloadInfo(self.scrollable_frame, url=url)
+        info_frame.pack(before=top_info_frame, expand=True, fill=X,
                         side=TOP)
-        self.last_dl_info = info_frame
         # Attempt to download audio and save to path
         #filename, title = download_audio(path, url)
         filename = get_filename(url)
